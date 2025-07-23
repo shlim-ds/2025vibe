@@ -1,98 +1,104 @@
-# drone_info_app.py
 import streamlit as st
 
-st.set_page_config(page_title="드론 소개 프로그램", layout="wide")
+st.set_page_config(page_title="드론 종합 소개 & 추천 시스템", layout="wide")
+st.title("🛩️ 드론 종합 소개 + 관심 분야별 추천 시스템")
 
-st.title("🛰️ 드론 소개 프로그램")
-st.markdown("드론의 역사부터 활용, 사용법, 제조사 정보, 종류 영상까지 한눈에 제공하는 웹 앱입니다.")
+st.markdown("📚 드론의 역사, 제조사, 비행 원리부터 🎥 영상, 🛒 구매 추천까지 모두 확인할 수 있습니다.")
 
-# 섹션: 드론의 역사
-st.header("📜 드론의 역사")
-st.markdown("""
-| 시기 | 내용 |
-|------|------|
-| **1900년대 초** | 최초 무선조종 비행체 시도 |
-| **1차 세계대전** | 폭탄 운반 무인기 개발 |
-| **2차 세계대전** | 정찰/폭격 무인기 실전 활용 |
-| **1990년대** | GPS 기반 정밀 비행 도입 |
-| **2000년대** | 민간 촬영용 드론 등장 |
-| **2010년대 이후** | 촬영, 농업, 물류 등 다양한 상업 분야로 확산 |
-""", unsafe_allow_html=True)
+# --- 드론 관심 분야별 추천 ---
+st.header("🤖 관심 분야에 따른 드론 추천")
 
-# 섹션: 제조사별 구분
-st.header("🏭 주요 드론 제조사 비교")
-st.markdown("""
-| 제조사 | 국적 | 특징 |
-|--------|------|------|
-| **DJI** | 중국 | 세계 1위, Mavic/Mini/Matrice 라인 |
-| **Parrot** | 프랑스 | 소형 촬영 드론, Anafi 시리즈 |
-| **Autel Robotics** | 중국/미국 | EVO 시리즈, 고급 영상 |
-| **Skydio** | 미국 | 자율 비행, 장애물 회피 |
-| **Yuneec** | 중국 | 산업용 6축 드론 |
-| **Zipline** | 미국 | 고정익 의료 배송 드론 |
-| **한국 기업** | 한국 | 대한항공·두산 등 수소·군용 드론 개발 |
-""", unsafe_allow_html=True)
+# 사용자 선택 입력
+selected_use = st.selectbox(
+    "관심 있는 드론 활용 분야를 선택하세요:",
+    ["촬영", "FPV 비행", "농업 방제", "구조/재난", "물류/배송", "입문/연습용"]
+)
 
-# 섹션: 드론 종류 영상 포함
-st.header("📺 드론의 종류 영상")
-st.write("쿼드콥터와 고정익 드론의 차이, 특징을 아래 영상에서 쉽게 확인할 수 있습니다:")
+# 추천 드론 딕셔너리
+drone_recommendations = {
+    "촬영": {
+        "model": "DJI Air 2S",
+        "desc": "1인치 센서 탑재, 5.4K 촬영 지원, 전문가용 촬영 드론",
+        "price": "₩891,000",
+        "link": "https://store.dji.com/product/dji-air-2s"
+    },
+    "FPV 비행": {
+        "model": "DJI Avata",
+        "desc": "FPV 촬영에 특화된 컴팩트 드론, 고글 연동, 초보자도 쉽게 사용 가능",
+        "price": "₩1,450,000",
+        "link": "https://store.dji.com/product/dji-avata"
+    },
+    "농업 방제": {
+        "model": "DJI Agras T10",
+        "desc": "10L 탱크 보유, 자동 방제 루트 지원, 농업 전문 드론",
+        "price": "₩7,000,000 이상",
+        "link": "https://www.dji.com/kr/t10"
+    },
+    "구조/재난": {
+        "model": "DJI Mavic 3 Thermal",
+        "desc": "열화상 카메라 탑재, 구조·감시용 드론, 자동 비행 지원",
+        "price": "₩6,000,000 이상",
+        "link": "https://www.dji.com/kr/mavic-3-enterprise"
+    },
+    "물류/배송": {
+        "model": "Zipline Fixed-Wing Drone",
+        "desc": "아프리카 등에서 의료 배송에 사용되는 고정익 드론 (특수 목적용)",
+        "price": "비공개 / 계약 기반",
+        "link": "https://flyzipline.com"
+    },
+    "입문/연습용": {
+        "model": "DJI Mini 4K",
+        "desc": "249g 이하 초경량, 조종 연습·입문자용으로 적합, 4K 지원",
+        "price": "₩365,000",
+        "link": "https://store.dji.com/product/dji-mini-2-se"
+    },
+}
+
+# 결과 출력
+selected = drone_recommendations[selected_use]
+st.subheader(f"🎯 {selected_use} 추천 드론: {selected['model']}")
+st.write(f"**설명**: {selected['desc']}")
+st.write(f"**가격**: {selected['price']}")
+st.markdown(f"[🔗 구매/상세 보기]({selected['link']})")
+
+# --- 영상 포함 소개 섹션 ---
+st.header("📺 드론 영상 가이드")
 st.video("https://www.youtube.com/watch?v=y_99afiNYnk")
+st.video("https://www.youtube.com/watch?v=SpuXqNakP2A")
+st.video("https://www.youtube.com/watch?v=MFO9V11KcI0")
+st.video("https://www.youtube.com/watch?v=3r3b-S910jc")
 
-# 섹션: 비행 원리
-st.header("✈️ 드론의 비행 원리")
-st.markdown("""
-- **양력(Lift)**: 프로펠러 회전으로 발생 → 드론 상승  
-- **추진력(Thrust)**: 회전 속도 조절 → 이동  
-- **자세 제어**: <br>
- • 피치(Pitch): 앞뒤<br>
- • 롤(Roll): 좌우<br>
- • 요(Yaw): 회전  
-- **센서 & GPS**: 위치·고도 안정 유지
-""")
+# --- 기타 정보 요약 ---
+st.header("📚 기타 드론 정보 요약")
 
-# 섹션: 활용 분야
-st.header("🚀 드론 활용 분야")
-st.markdown("""
-| 분야 | 설명 |
-|------|------|
-| **촬영/미디어** | 항공 영상, 방송, 유튜브 콘텐츠 |
-| **농업** | 방제, 생육 모니터링, 파종 |
-| **물류/배송** | 의료물·소형 택배 배송 |
-| **구조/재난** | 실종자 수색, 산불·재해 감시 |
-| **산업/건설** | 3D 맵핑, 시설 점검 |
-| **군사/안보** | 정찰, 감시, 무장 드론 |
-| **환경 감시** | 대기질·해양 생태 조사 |
-""", unsafe_allow_html=True)
-
-# 섹션: 사용법
-st.header("🕹️ 드론 사용법")
-with st.expander("1. 비행 전 준비"):
+with st.expander("📜 드론의 역사"):
     st.markdown("""
-    - 날씨·GPS 수신 상태 확인  
-    - 배터리 충전 여부 점검  
-    - 금지구역 여부 체크 (국토부 드론 원스탑 앱)
-    """)
-with st.expander("2. 조종기 조작법"):
-    st.markdown("""
-    - **왼쪽 스틱**: 고도↑↓, 회전(Yaw)  
-    - **오른쪽 스틱**: 전/후/좌/우 이동(Pitch, Roll)
-    """)
-with st.expander("3. 비행 장소 추천"):
-    st.markdown("""
-    - 넓고 탁트인 공터, 운동장  
-    - 시야 확보 쉬운 지역  
-    - 드론 비행 가능 구역인지 반드시 확인!
+    - 1900년대 초: 군용 무선조종 비행체 개발  
+    - 1990년대: GPS 기반 군정찰기  
+    - 2000년대 이후: 민간 촬영용 드론 대중화
     """)
 
-# 섹션: 자격증 제도
-st.header("📑 드론 자격증 제도 (한국 기준)")
-st.markdown("""
-| 등급 | 활용 범위 |
-|------|-----------|
-| **1종** | 25 kg 이상, 실기 포함 |
-| **2종** | 7 ~ 25 kg |
-| **3종** | 2 ~ 7 kg, 실기 면제 가능 |
-| **4종** | 2 kg 이하, 온라인 교육 이수 |
-""", unsafe_allow_html=True)
+with st.expander("🏭 제조사 비교"):
+    st.markdown("""
+    - DJI (중국): 전 세계 점유율 70% 이상  
+    - Parrot, Autel, Skydio 등 다양한 기업 존재
+    """)
 
-st.success("영상과 함께 드론의 종류와 핵심 정보까지 모두 확인하셨다면, 원하시는 기능이나 콘텐츠를 더 추가해 드릴 수 있어요! 😊")
+with st.expander("✈️ 비행 원리"):
+    st.markdown("""
+    - 프로펠러 양력, 추력, 피치/롤/요 조절  
+    - 센서 & GPS로 비행 안정성 유지
+    """)
+
+with st.expander("🚀 활용 분야"):
+    st.markdown("""
+    - 촬영, 농업, 배송, 구조, 건설, 군사용 등 다양한 분야
+    """)
+
+with st.expander("🕹️ 조종법 & 자격증"):
+    st.markdown("""
+    - 조종기: 왼쪽 스틱 (고도, 회전), 오른쪽 스틱 (이동)  
+    - 한국 자격증: 1종~4종, 기체 중량에 따라 다름
+    """)
+
+st.success("💡 관심 분야 기반 추천이 완료되었습니다! 더 많은 기능이 필요하시면 말씀해 주세요.")
