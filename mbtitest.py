@@ -1,4 +1,6 @@
 import streamlit as st
+import matplotlib
+matplotlib.use('Agg')  # Streamlit에서 백엔드 설정
 import matplotlib.pyplot as plt
 from PIL import Image
 import pandas as pd
