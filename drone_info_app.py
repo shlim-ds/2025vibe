@@ -1,74 +1,96 @@
 import streamlit as st
 
-st.set_page_config(page_title="드론 종합 소개 & 추천 시스템", layout="wide")
-st.title("🛩️ 드론 종합 소개 + 관심 분야별 추천 시스템")
+st.set_page_config(page_title="드론 예산별 구매 가이드", layout="wide")
+st.title("🛩️ 드론 예산별 구매 추천 프로그램")
 
-st.markdown("📚 드론의 역사, 제조사, 비행 원리부터 🎥 영상, 🛒 구매 추천까지 모두 확인할 수 있습니다.")
+st.markdown("""
+이 앱은 사용자의 **관심 분야**와 **예산**을 기반으로 적합한 드론을 추천해줍니다.
+""")
 
-# --- 드론 관심 분야별 추천 ---
-st.header("🤖 관심 분야에 따른 드론 추천")
-
-# 사용자 선택 입력
-selected_use = st.selectbox(
-    "관심 있는 드론 활용 분야를 선택하세요:",
-    ["촬영", "FPV 비행", "농업 방제", "구조/재난", "물류/배송", "입문/연습용"]
-)
-
-# 추천 드론 딕셔너리
-drone_recommendations = {
-    "촬영": {
-        "model": "DJI Air 2S",
-        "desc": "1인치 센서 탑재, 5.4K 촬영 지원, 전문가용 촬영 드론",
-        "price": "₩891,000",
-        "link": "https://store.dji.com/product/dji-air-2s"
-    },
-    "FPV 비행": {
-        "model": "DJI Avata",
-        "desc": "FPV 촬영에 특화된 컴팩트 드론, 고글 연동, 초보자도 쉽게 사용 가능",
-        "price": "₩1,450,000",
-        "link": "https://store.dji.com/product/dji-avata"
-    },
-    "농업 방제": {
-        "model": "DJI Agras T10",
-        "desc": "10L 탱크 보유, 자동 방제 루트 지원, 농업 전문 드론",
-        "price": "₩7,000,000 이상",
-        "link": "https://www.dji.com/kr/t10"
-    },
-    "구조/재난": {
-        "model": "DJI Mavic 3 Thermal",
-        "desc": "열화상 카메라 탑재, 구조·감시용 드론, 자동 비행 지원",
-        "price": "₩6,000,000 이상",
-        "link": "https://www.dji.com/kr/mavic-3-enterprise"
-    },
-    "물류/배송": {
-        "model": "Zipline Fixed-Wing Drone",
-        "desc": "아프리카 등에서 의료 배송에 사용되는 고정익 드론 (특수 목적용)",
-        "price": "비공개 / 계약 기반",
-        "link": "https://flyzipline.com"
-    },
-    "입문/연습용": {
+# 드론 데이터셋
+drone_db = [
+    {
         "model": "DJI Mini 4K",
-        "desc": "249g 이하 초경량, 조종 연습·입문자용으로 적합, 4K 지원",
-        "price": "₩365,000",
+        "category": "입문/연습용",
+        "desc": "초경량, 입문자용, 4K 촬영 지원",
+        "price": 365000,
         "link": "https://store.dji.com/product/dji-mini-2-se"
     },
-}
+    {
+        "model": "DJI Air 2S",
+        "category": "촬영",
+        "desc": "1인치 센서, 5.4K 촬영, 중급 이상",
+        "price": 891000,
+        "link": "https://store.dji.com/product/dji-air-2s"
+    },
+    {
+        "model": "DJI Avata",
+        "category": "FPV 비행",
+        "desc": "FPV 전용 드론, 고글 연동, 입문자도 사용 가능",
+        "price": 1450000,
+        "link": "https://store.dji.com/product/dji-avata"
+    },
+    {
+        "model": "DJI Agras T10",
+        "category": "농업 방제",
+        "desc": "10L 방제 드론, 농업 자동화에 적합",
+        "price": 7000000,
+        "link": "https://www.dji.com/kr/t10"
+    },
+    {
+        "model": "DJI Mavic 3 Thermal",
+        "category": "구조/재난",
+        "desc": "열화상 감지 가능, 구조 및 감시용",
+        "price": 6000000,
+        "link": "https://www.dji.com/kr/mavic-3-enterprise"
+    },
+    {
+        "model": "Xiaomi Mijia E88 Pro",
+        "category": "입문/연습용",
+        "desc": "가성비 FPV 입문 드론, HD 영상 가능",
+        "price": 15000,
+        "link": "https://www.aliexpress.com/item/1005005046354100.html"
+    },
+    {
+        "model": "Zipline Drone",
+        "category": "물류/배송",
+        "desc": "고정익 기반 장거리 배송 드론, 계약 기반 운영",
+        "price": 99999999,
+        "link": "https://flyzipline.com"
+    }
+]
+
+# 사용자 입력
+st.header("🔍 구매 조건 입력")
+budget = st.number_input("예산을 입력하세요 (₩ 단위)", min_value=10000, max_value=100000000, value=1000000, step=50000)
+category = st.selectbox(
+    "관심 있는 드론 활용 분야를 선택하세요:",
+    sorted(set([d["category"] for d in drone_db]))
+)
+
+# 조건 필터링
+filtered = [d for d in drone_db if d["category"] == category and d["price"] <= budget]
 
 # 결과 출력
-selected = drone_recommendations[selected_use]
-st.subheader(f"🎯 {selected_use} 추천 드론: {selected['model']}")
-st.write(f"**설명**: {selected['desc']}")
-st.write(f"**가격**: {selected['price']}")
-st.markdown(f"[🔗 구매/상세 보기]({selected['link']})")
+st.header("📦 추천 드론 결과")
+if filtered:
+    for drone in filtered:
+        st.subheader(f"{drone['model']} — ₩{drone['price']:,}")
+        st.write(drone["desc"])
+        st.markdown(f"[🔗 구매 링크]({drone['link']})")
+else:
+    st.warning(f"❌ 예산 ₩{budget:,} 내에 '{category}' 분야에 적합한 드론이 없습니다. 예산을 높여보세요.")
 
-# --- 영상 포함 소개 섹션 ---
-st.header("📺 드론 영상 가이드")
-st.video("https://www.youtube.com/watch?v=y_99afiNYnk")
-st.video("https://www.youtube.com/watch?v=SpuXqNakP2A")
-st.video("https://www.youtube.com/watch?v=MFO9V11KcI0")
-st.video("https://www.youtube.com/watch?v=3r3b-S910jc")
+# 부가 정보
+with st.expander("💡 드론 구매 시 팁"):
+    st.markdown("""
+    - **항공법 확인 필수**: 250g 초과 시 등록 의무  
+    - **비행시간, 영상화질, 조종 난이도**를 반드시 고려  
+    - **자격증 필요 여부**도 확인하세요 (2kg 이상 대부분 필요)
+    """)
 
-# --- 기타 정보 요약 ---
+st.success("🎉 예산 기반 드론 추천이 완료되었습니다!")
+
 st.header("📚 기타 드론 정보 요약")
 
 with st.expander("📜 드론의 역사"):
