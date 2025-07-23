@@ -6,7 +6,10 @@ st.title("🛩️ 브랜드별 드론 추천 프로그램")
 st.markdown("""
 이 앱은 다양한 드론 브랜드의 제품을 **가격**, **수준(입문/중급/전문가)**, **용도**에 따라 추천해줍니다.
 또한 사용자의 **이해 수준**에 따라 적합한 드론을 자동으로 추천합니다.
+(환율 기준: 1 USD ≒ 1,300원 적용)
 """)
+
+USD_TO_KRW = 1300  # 간단한 환율 가정
 
 # -----------------------------
 # 드론 데이터
@@ -74,7 +77,8 @@ filtered = [
 
 if filtered:
     for d in filtered:
-        st.subheader(f"{d['model']} — ${d['price']}")
+        kr_price = d['price'] * USD_TO_KRW
+        st.subheader(f"{d['model']} — 약 ₩{kr_price:,.0f}원")
         st.write(f"브랜드: {d['brand']} | 수준: {d['level']} | 용도: {d['purpose']}")
         st.write(f"📝 {d['desc']}")
         st.markdown(f"[🔗 공식 링크]({d['link']})")
