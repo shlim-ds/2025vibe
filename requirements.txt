@@ -8,3 +8,6 @@ haversine
 plotly
 pdf2image
 Pillow
+opencv-python
+pdf2image
+fpdf
