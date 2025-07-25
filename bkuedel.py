@@ -5,7 +5,7 @@ import io
 import os
 
 # Poppler가 설치된 로컬 경로를 지정하세요
-POPLER_PATH = "C:/poppler-23.11.0/Library/bin"  # 또는 리눅스/mac은 None
+POPLER_PATH = "D:\poppler-23.11.0\Library\bin"  # 또는 리눅스/mac은 None
 
 st.title("📄 PDF → 이미지 변환기")
 
