@@ -4,7 +4,7 @@ from streamlit_folium import st_folium
 from geopy.geocoders import Nominatim
 from geopy.exc import GeocoderTimedOut, GeocoderServiceError
 
-# 🔖 북마크 정의 (도시명: 위도, 경도)
+# 🌍 기본 북마크 정의
 bookmarks = {
     "서울": [37.5665, 126.9780],
     "부산": [35.1796, 129.0756],
@@ -14,21 +14,20 @@ bookmarks = {
 }
 
 # 📄 페이지 설정
-st.set_page_config(page_title="📍 지도 북마크 + 위치 검색", layout="wide")
-st.title("🗺️ 북마크 지도 + 위치 검색")
-st.markdown("북마크를 선택하거나 지명을 입력하여 검색하면 해당 위치가 지도에 표시됩니다.")
+st.set_page_config(page_title="정확한 위치 검색 지도", layout="wide")
+st.title("📍 위치 검색 및 북마크 지도")
+st.markdown("북마크 또는 검색어로 지도를 탐색할 수 있습니다. 검색된 위치의 정확한 주소와 좌표도 함께 확인하세요.")
 
 # 📌 북마크 선택
 selected_city = st.sidebar.selectbox("📍 북마크에서 위치 선택", list(bookmarks.keys()))
 default_location = bookmarks[selected_city]
 
-# 🔎 위치 검색 입력
-search_query = st.text_input("🔍 검색할 위치를 입력하세요 (예: 강남역, 서울대학교, 남산타워 등)", "")
+# 🔍 위치 검색
+search_query = st.text_input("🔍 위치 검색 (예: 서울시청, 강남역, 제주 공항 등)", "")
 search_result = None
-zoom_level = 12
 map_location = default_location
+zoom_level = 12
 
-# 🔍 위치 검색 처리
 if search_query:
     geolocator = Nominatim(user_agent="streamlit_map_app")
     try:
@@ -41,31 +40,39 @@ if search_query:
             }
             map_location = [location.latitude, location.longitude]
             zoom_level = 15  # 검색 시 확대
+
+            # ✅ 검색된 위치 정보 출력
+            st.success("✅ 정확한 위치를 찾았습니다!")
+            st.markdown(f"""
+                **📌 주소:** {search_result['name']}  
+                **🌐 위도:** {search_result['lat']:.6f}  
+                **🌐 경도:** {search_result['lon']:.6f}
+            """)
         else:
             st.warning("❗ 위치를 찾을 수 없습니다. 정확한 지명을 입력해 주세요.")
     except (GeocoderTimedOut, GeocoderServiceError):
-        st.error("🚨 위치 검색 중 일시적인 문제가 발생했습니다. 잠시 후 다시 시도해 주세요.")
+        st.error("🚨 위치 검색 중 오류가 발생했습니다. 인터넷 상태를 확인하거나 잠시 후 다시 시도해 주세요.")
 
 # 🗺️ 지도 객체 생성
 m = folium.Map(location=map_location, zoom_start=zoom_level)
 
-# 📌 북마크 마커 추가
+# 📍 북마크 마커 추가
 for city, (lat, lon) in bookmarks.items():
     folium.Marker(
         location=[lat, lon],
-        tooltip=city,
         popup=city,
+        tooltip=city,
         icon=folium.Icon(color="blue" if city == selected_city else "gray")
     ).add_to(m)
 
-# 📍 검색 결과 마커 추가
+# 🔴 검색 결과 마커 추가
 if search_result:
     folium.Marker(
         location=[search_result["lat"], search_result["lon"]],
         popup=f"🔍 {search_result['name']}",
-        tooltip="검색 위치",
+        tooltip="검색된 위치",
         icon=folium.Icon(color="red", icon="search")
     ).add_to(m)
 
-# 🌍 지도 출력
+# 🌐 지도 출력
 st_folium(m, width=900, height=600)
