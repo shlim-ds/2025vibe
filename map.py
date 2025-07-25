@@ -5,7 +5,7 @@ from geopy.geocoders import Nominatim
 from geopy.exc import GeocoderTimedOut, GeocoderServiceError
 from haversine import haversine, Unit
 
-# ✅ 초기 북마크 (아이콘 포함)
+# ✅ 초기 북마크 (coords + icon 포함)
 default_bookmarks = {
     "서울": {"coords": [37.5665, 126.9780], "icon": "home"},
     "광주역": {"coords": [35.16535065, 126.9092577], "icon": "train"},
@@ -13,14 +13,15 @@ default_bookmarks = {
     "제주도": {"coords": [33.4996, 126.5312], "icon": "star"},
 }
 
+# 🧠 세션 상태 초기화
 if "bookmarks" not in st.session_state:
-    st.session_state.bookmarks = default_bookmarks
+    st.session_state.bookmarks = default_bookmarks.copy()
 
 st.set_page_config(page_title="📍 위치 기반 지도 서비스", layout="wide")
 st.title("🗺️ 현재 위치 + 북마크 + 아이콘 표시 + 경로 시각화")
 
 # 📍 현재 위치 주소 입력
-st.sidebar.subheader("📍 현재 위치 (주소 입력)")
+st.sidebar.subheader("📍 현재 위치 주소")
 geolocator = Nominatim(user_agent="streamlit_map_app")
 current_address = st.sidebar.text_input("현재 위치 주소", "서울특별시 종로구 세종대로 209")
 
@@ -31,7 +32,7 @@ try:
         st.sidebar.success(f"위도: {location.latitude:.6f}, 경도: {location.longitude:.6f}")
     else:
         current_latlon = (37.5665, 126.9780)
-        st.sidebar.warning("❗ 위치를 찾을 수 없습니다. 기본값(서울) 사용.")
+        st.sidebar.warning("❗ 주소를 찾을 수 없습니다. 기본값 사용")
 except Exception:
     current_latlon = (37.5665, 126.9780)
     st.sidebar.error("🚨 현재 위치 조회 실패. 기본값 사용")
@@ -39,13 +40,23 @@ except Exception:
 # 📌 북마크 선택
 st.sidebar.subheader("📌 북마크 선택")
 selected_place = st.sidebar.selectbox("북마크", list(st.session_state.bookmarks.keys()))
-selected_coords = st.session_state.bookmarks[selected_place]["coords"]
+
+# ✅ 선택된 북마크 구조 확인 및 안전한 접근
+if selected_place in st.session_state.bookmarks:
+    selected_data = st.session_state.bookmarks[selected_place]
+    if isinstance(selected_data, dict) and "coords" in selected_data:
+        selected_coords = selected_data["coords"]
+    else:
+        st.warning(f"❗ 북마크 '{selected_place}'의 구조가 잘못되었습니다. 기본값 사용")
+        selected_coords = [37.5665, 126.9780]
+else:
+    selected_coords = [37.5665, 126.9780]
 
 # ➕ 북마크 추가
 with st.sidebar.expander("➕ 북마크 추가"):
-    new_place = st.text_input("장소명 입력")
+    new_place = st.text_input("장소명")
     new_icon = st.selectbox("아이콘 선택", ["star", "flag", "home", "train", "info-sign"])
-    if st.button("🔍 장소 추가"):
+    if st.button("북마크 추가"):
         try:
             loc = geolocator.geocode(new_place, timeout=5)
             if loc:
@@ -53,14 +64,14 @@ with st.sidebar.expander("➕ 북마크 추가"):
                     "coords": [loc.latitude, loc.longitude],
                     "icon": new_icon
                 }
-                st.success(f"✅ 북마크 '{new_place}' 추가 완료")
+                st.success(f"✅ '{new_place}' 추가 완료")
             else:
                 st.warning("❗ 장소를 찾을 수 없습니다.")
         except Exception:
             st.error("🚨 장소 추가 실패")
 
-# 🔍 위치 검색
-search_query = st.text_input("🔎 위치 검색", "")
+# 🔍 검색 기능
+search_query = st.text_input("🔍 위치 검색", "")
 search_result = None
 map_center = selected_coords
 zoom_level = 13
@@ -76,18 +87,18 @@ if search_query:
             }
             map_center = [loc.latitude, loc.longitude]
             zoom_level = 15
-            st.success("✅ 검색 위치 확인됨")
+            st.success("✅ 위치 검색 성공")
             st.markdown(f"""
                 **📌 주소:** {search_result['name']}  
                 **🌐 위도:** {search_result['lat']:.6f}  
                 **🌐 경도:** {search_result['lon']:.6f}
             """)
         else:
-            st.warning("❗ 검색 결과를 찾을 수 없습니다.")
+            st.warning("❗ 검색 결과 없음")
     except Exception:
-        st.error("🚨 검색 실패")
+        st.error("🚨 검색 중 오류")
 
-# 거리/시간 계산 함수
+# 거리 및 시간 계산
 def calculate_distance_and_time(loc1, loc2):
     distance_km = haversine(loc1, loc2, unit=Unit.KILOMETERS)
     walk_min = round((distance_km / 5) * 60)
@@ -107,16 +118,17 @@ folium.Marker(
 
 # 북마크 마커 + 아이콘 적용
 for name, data in st.session_state.bookmarks.items():
-    lat, lon = data["coords"]
-    icon_type = data.get("icon", "info-sign")
-    folium.Marker(
-        location=[lat, lon],
-        popup=name,
-        tooltip=name,
-        icon=folium.Icon(color="blue", icon=icon_type)
-    ).add_to(m)
+    if isinstance(data, dict) and "coords" in data:
+        lat, lon = data["coords"]
+        icon_type = data.get("icon", "info-sign")
+        folium.Marker(
+            location=[lat, lon],
+            popup=name,
+            tooltip=name,
+            icon=folium.Icon(color="blue", icon=icon_type)
+        ).add_to(m)
 
-# 검색 위치 마커
+# 검색 마커 + 경로
 if search_result:
     target_latlon = (search_result["lat"], search_result["lon"])
     folium.Marker(
@@ -126,15 +138,13 @@ if search_result:
         icon=folium.Icon(color="red", icon="search")
     ).add_to(m)
 
-    # 경로 시각화
     folium.PolyLine(locations=[current_latlon, target_latlon], color="purple", weight=3).add_to(m)
 
-    # 거리 및 시간 출력
     dist_km, walk_min, drive_min = calculate_distance_and_time(current_latlon, target_latlon)
     st.info(f"""
         📏 거리: **{dist_km} km**  
-        🚶 도보 시간: 약 {walk_min}분  
-        🚗 차량 시간: 약 {drive_min}분
+        🚶 도보: 약 {walk_min}분  
+        🚗 차량: 약 {drive_min}분
     """)
 
 # 지도 출력
