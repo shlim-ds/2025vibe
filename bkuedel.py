@@ -5,7 +5,7 @@ import io
 import os
 
 # ✅ Poppler 설치 경로 (사용자 환경에 맞게 수정 완료됨)
-POPLER_PATH = r"D:\poppler-23.11.0\Library\bin"  # 역슬래시(\) 대신 r-string 또는 슬래시(/) 사용 권장
+POPLER_PATH = r"D:\poppler-24.08.0\Library\bin\"  # 역슬래시(\) 대신 r-string 또는 슬래시(/) 사용 권장
 
 st.set_page_config(page_title="PDF → 이미지 변환기", layout="centered")
 st.title("📄 PDF 파일을 이미지로 변환")
