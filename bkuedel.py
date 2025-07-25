@@ -5,7 +5,7 @@ import io
 import os
 
 # ✅ Poppler 경로 수정됨 (백슬래시 끝에 문제 없도록)
-POPLER_PATH = r"D:\poppler-24.08.0\Library\bin"
+POPLER_PATH = "D:/poppler-24.08.0/Library/bin"
 
 # Poppler 실행 파일 존재 여부 확인
 if not os.path.exists(os.path.join(POPLER_PATH, "pdftoppm.exe")):
