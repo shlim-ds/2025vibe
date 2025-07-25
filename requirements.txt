@@ -10,3 +10,4 @@ Pillow
 opencv-python
 pdf2image
 fpdf
+python_version < 3.13
